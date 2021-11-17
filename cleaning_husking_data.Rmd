@@ -57,9 +57,27 @@ rat_station_clean <- rat_stations_raw %>%
   ##remove number in front of variable name
   rename_at(vars(matches("number_")), ~str_remove(., "number_")) %>%
   rename_at(vars(12,15), ~str_remove(., "of_")) %>% 
-  rename_at(vars(matches("_mm")), ~str_remove(., "_mm"))
+  rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>%
+  rename(carapace_pieces = "carapace_pieces_y_n") %>%
+  mutate(across(8:18, ~replace(.,.== "n/a", NA)))
+
+rat_crab_clean <- rat_crab_stat_raw %>% 
+  rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>% 
+  rename(carapace_pieces = "carapace_pieces_inc_gastrod_shell_used_by_coenobita_y_n")
 
 ```
+
+## Save
+
+
+```{r}
+write_csv(rat_station_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_husking.csv"))
+
+write_csv(rat_crab_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_crab_husking.csv"))
+
+```
+
+
 
 
 
