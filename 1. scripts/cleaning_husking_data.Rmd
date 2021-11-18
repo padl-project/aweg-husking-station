@@ -1,0 +1,140 @@
+---
+title: "Cleaning Husking Satation Data"
+author: "Camila Vargas"
+date: "11/17/2021"
+output: html_document
+---
+
+This scripts cleans, organize and QA/QC Alex Wegmann data on Husking Station Analysis data.
+
+The outcome data of this script will be publicly available in the Environmental Data Initiative data portal.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+library(data.table)
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(lubridate)
+library(freeR)
+
+## Sets R not to use scientific notations
+options(scipen=999) 
+
+```
+
+
+## Read data
+```{r}
+excel_sheets("6.raw_data/HuskingStationAnalysis.xls")
+
+rat_stations_raw <- read_excel(here::here("6.raw_data/HuskingStationAnalysis.xls"), sheet = "Rat_stations") %>%
+  clean_names()
+
+rat_crab_stat_raw <-  read_excel(here::here("6.raw_data/HuskingStationAnalysis.xls"), sheet = "Rat-crab stations") %>%
+  clean_names() %>% 
+  select(1:17)
+
+```
+
+
+We are only using data from 2 sheets: Rat Station and Rat-crab stations. The rest seems to have no data pull data form this two main data sets for a specific analysis.
+
+Ask Alex: Do we need any other sheet? Is the data for ch 1 fig 3 sheet necessary or a compilation/restructure version of the two main sheets we are looking at.
+
+## Cleaning
+Steps:
+1. Change n/a to actual NAs
+2. Remove units from colnames
+3. Standardize colnames between both data sets
+
+
+```{r}
+
+rat_station_clean <- rat_stations_raw %>% 
+  ##remove number in front of variable name
+  rename_at(vars(matches("number_")), ~str_remove(., "number_")) %>%
+  rename_at(vars(12,15), ~str_remove(., "of_")) %>% 
+  rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>%
+  rename(carapace_pieces = "carapace_pieces_y_n") %>%
+  mutate(across(8:18, ~replace(.,.== "n/a", NA))) %>% 
+  mutate(max_chela_size = ifelse(max_chela_size == "23,2", "23.2", max_chela_size),
+         contents = str_remove_all(contents, "[[:punct:]]")) ## remove all special characters
+
+rat_crab_clean <- rat_crab_stat_raw %>% 
+  rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>% 
+  rename(carapace_pieces = "carapace_pieces_inc_gastrod_shell_used_by_coenobita_y_n") %>% 
+  mutate(across(7:17, ~replace(.,.== "n/a", NA))) %>% 
+  mutate(max_chela_size = ifelse(max_chela_size == "23,2", "23.2", max_chela_size),
+         contents = str_remove_all(contents, "[[:punct:]]"),
+         crab_genus = ifelse(crab_genus == "?", NA, crab_genus)) 
+
+```
+
+
+## Checking
+
+```{r}
+## Rat Husking
+## counting how many NAs en each row. 
+freeR::complete(rat_station_clean)
+
+unique(rat_station_clean$island) ## Character
+unique(rat_station_clean$forest) ## Categorical
+unique(rat_station_clean$predator) ## Character
+unique(rat_station_clean$prey) ## Character
+unique(rat_station_clean$station) ## Numbers assign to each station
+unique(rat_station_clean$contents) ## Has "" the need to be removed. Character
+unique(rat_station_clean$total) ## What does PAF mean? otherwise numerical
+unique(rat_station_clean$killed) ## numeric
+unique(rat_station_clean$viable) ## read as numeric from saved file. same than seedling, chela and min_chela, gastropod_shells
+unique(rat_station_clean$max_chela_size) ## one numbers had a , instead of a . fixed above.
+unique(rat_station_clean$carapace_pieces) ## categorical
+unique(rat_station_clean$station_habitat) ## categorical
+unique(rat_station_clean$station_habitat_redifined) ## character. Except for "T
+
+
+```
+
+
+```{r}
+
+## Rat-crab husking
+## counting how many NAs en each row. 
+freeR::complete(rat_crab_clean)
+
+unique(rat_crab_clean$island) ## Character
+unique(rat_crab_clean$forest) ## Categorical
+unique(rat_crab_clean$predator) ## Character
+unique(rat_crab_clean$prey) ## Character
+unique(rat_crab_clean$station) ## Numbers assign to each station. AKA interger
+unique(rat_crab_clean$contents) ## Character. Remove "" above
+unique(rat_crab_clean$crab_genus)## character. Replaced ? with NA
+unique(rat_crab_clean$total) ##  numeric
+unique(rat_crab_clean$killed) ## numeric
+unique(rat_crab_clean$chela) ## will be read as numeric
+unique(rat_crab_clean$max_chela_size) ## one numbers had a , instead of a . fixed above.
+unique(rat_crab_clean$carapace_pieces) ## will be read as numeric but should be categorical
+unique(rat_crab_clean$station_habitat_redifined) ## character.
+
+```
+
+
+
+## Save
+
+
+```{r}
+write_csv(rat_station_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_husking.csv"))
+
+write_csv(rat_crab_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_crab_husking.csv"))
+
+```
+
+
+
+
+
