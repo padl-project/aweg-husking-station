@@ -34,22 +34,25 @@ excel_sheets("6.raw_data/HuskingStationAnalysis.xls")
 rat_stations_raw <- read_excel(here::here("6.raw_data/HuskingStationAnalysis.xls"), sheet = "Rat_stations") %>%
   clean_names()
 
-rat_crab_stat_raw <-  read_excel(here::here("6.raw_data/HuskingStationAnalysis.xls"), sheet = "Rat-crab stations") %>%
-  clean_names() %>% 
-  select(1:17)
+## Not needed see Alex respond below
+# rat_crab_stat_raw <-  read_excel(here::here("6.raw_data/HuskingStationAnalysis.xls"), sheet = "Rat-crab stations") %>%
+#   clean_names() %>% 
+#   select(1:17)
 
 ```
 
 
-We are only using data from 2 sheets: Rat Station and Rat-crab stations. The rest seems to have no data pull data form this two main data sets for a specific analysis.
+We are only using data from 1 sheets: Rat Station. The rest seems to pull data form this two main data sets for a specific analysis.
 
 Ask Alex: Do we need any other sheet? Is the data for ch 1 fig 3 sheet necessary or a compilation/restructure version of the two main sheets we are looking at.
+
+Alex Response:
+The “Rat_stations” tab is “parent dataset.” The Rat-crab stations tab is subset of stations where rats processed crab prey.  So, we only need to publish the Rat_stations dataset.
 
 ## Cleaning
 Steps:
 1. Change n/a to actual NAs
 2. Remove units from colnames
-3. Standardize colnames between both data sets
 
 
 ```{r}
@@ -61,16 +64,21 @@ rat_station_clean <- rat_stations_raw %>%
   rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>%
   rename(carapace_pieces = "carapace_pieces_y_n") %>%
   mutate(across(8:18, ~replace(.,.== "n/a", NA))) %>% 
-  mutate(max_chela_size = ifelse(max_chela_size == "23,2", "23.2", max_chela_size),
-         contents = str_remove_all(contents, "[[:punct:]]")) ## remove all special characters
-
-rat_crab_clean <- rat_crab_stat_raw %>% 
-  rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>% 
-  rename(carapace_pieces = "carapace_pieces_inc_gastrod_shell_used_by_coenobita_y_n") %>% 
-  mutate(across(7:17, ~replace(.,.== "n/a", NA))) %>% 
-  mutate(max_chela_size = ifelse(max_chela_size == "23,2", "23.2", max_chela_size),
+  mutate(max_chela_size = ifelse(max_chela_size == "23,2", "23.2", max_chela_size) %>% as.numeric(.),
+         ## remove all special characters
          contents = str_remove_all(contents, "[[:punct:]]"),
-         crab_genus = ifelse(crab_genus == "?", NA, crab_genus)) 
+         total = ifelse(total == "PAF", NA, total) %>%  as.numeric(.),
+         carapace_pieces = case_when(carapace_pieces == "Y" ~ "y",
+                                     carapace_pieces == "N" ~ "n",
+                                     T ~ carapace_pieces))
+
+# rat_crab_clean <- rat_crab_stat_raw %>% 
+#   rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>% 
+#   rename(carapace_pieces = "carapace_pieces_inc_gastrod_shell_used_by_coenobita_y_n") %>% 
+#   mutate(across(7:17, ~replace(.,.== "n/a", NA))) %>% 
+#   mutate(max_chela_size = ifelse(max_chela_size == "23,2", "23.2", max_chela_size),
+#          contents = str_remove_all(contents, "[[:punct:]]"),
+#          crab_genus = ifelse(crab_genus == "?", NA, crab_genus)) 
 
 ```
 
@@ -104,21 +112,21 @@ unique(rat_station_clean$station_habitat_redifined) ## character. Except for "T
 
 ## Rat-crab husking
 ## counting how many NAs en each row. 
-freeR::complete(rat_crab_clean)
-
-unique(rat_crab_clean$island) ## Character
-unique(rat_crab_clean$forest) ## Categorical
-unique(rat_crab_clean$predator) ## Character
-unique(rat_crab_clean$prey) ## Character
-unique(rat_crab_clean$station) ## Numbers assign to each station. AKA interger
-unique(rat_crab_clean$contents) ## Character. Remove "" above
-unique(rat_crab_clean$crab_genus)## character. Replaced ? with NA
-unique(rat_crab_clean$total) ##  numeric
-unique(rat_crab_clean$killed) ## numeric
-unique(rat_crab_clean$chela) ## will be read as numeric
-unique(rat_crab_clean$max_chela_size) ## one numbers had a , instead of a . fixed above.
-unique(rat_crab_clean$carapace_pieces) ## will be read as numeric but should be categorical
-unique(rat_crab_clean$station_habitat_redifined) ## character.
+# freeR::complete(rat_crab_clean)
+# 
+# unique(rat_crab_clean$island) ## Character
+# unique(rat_crab_clean$forest) ## Categorical
+# unique(rat_crab_clean$predator) ## Character
+# unique(rat_crab_clean$prey) ## Character
+# unique(rat_crab_clean$station) ## Numbers assign to each station. AKA interger
+# unique(rat_crab_clean$contents) ## Character. Remove "" above
+# unique(rat_crab_clean$crab_genus)## character. Replaced ? with NA
+# unique(rat_crab_clean$total) ##  numeric
+# unique(rat_crab_clean$killed) ## numeric
+# unique(rat_crab_clean$chela) ## will be read as numeric
+# unique(rat_crab_clean$max_chela_size) ## one numbers had a , instead of a . fixed above.
+# unique(rat_crab_clean$carapace_pieces) ## will be read as numeric but should be categorical
+# unique(rat_crab_clean$station_habitat_redifined) ## character.
 
 ```
 
@@ -130,7 +138,7 @@ unique(rat_crab_clean$station_habitat_redifined) ## character.
 ```{r}
 write_csv(rat_station_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_husking.csv"))
 
-write_csv(rat_crab_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_crab_husking.csv"))
+# write_csv(rat_crab_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_crab_husking.csv"))
 
 ```
 
