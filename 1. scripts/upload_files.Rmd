@@ -19,15 +19,15 @@ Data
 ```{r}
 
 ## Finalized data folder url
-final_files_url <- " "
+final_files_url <- "https://drive.google.com/drive/u/0/folders/1ajyE-XqQCRWTzFGUL05F1f6tnRYf9a1I"
 
 ## Upload data 
 ## One file
 # **UPADATE FILE PATH AND NAME**
 
-drive_upload(media = paste0(getwd(),"/7.clean_data/FILE_NAME.csv"),
+drive_upload(media = paste0(getwd(),"/7.clean_data/2004_2005_palmyra_atoll_rat_husking.csv"),
              path = as_id(final_files_url),
-             name = "FILE NAME",
+             name = "2004_2005_palmyra_atoll_rat_husking",
              type = "csv")
 
 
@@ -59,7 +59,7 @@ Metadata Doc
 
 drive_upload(media = here::here("2.metadata_doc/metadata_doc.docx"),
              path = as_id(final_files_url),
-             name = "FILE NAME_metadata.docx",
+             name = "wegmann_husking_metadata.docx",
              type = "docx")
 ```
 

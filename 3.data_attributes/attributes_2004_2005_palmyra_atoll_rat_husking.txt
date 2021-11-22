@@ -1,0 +1,20 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+date		Date		!Add datetime specifier here!		
+island		character				
+forest		categorical				
+predator		character				
+prey		character				
+station		numeric	!Add units here!			
+contents		character				
+total		numeric	!Add units here!			
+killed		numeric	!Add units here!			
+viable		numeric	!Add units here!			
+seedlings		numeric	!Add units here!			
+chela		numeric	!Add units here!			
+max_chela_size		numeric	!Add units here!			
+min_chela_size		numeric	!Add units here!			
+gastropod_shells		numeric	!Add units here!			
+carapace_pieces		categorical				
+station_habitat		categorical				
+station_habitat_redifined		character				
+notes		character				

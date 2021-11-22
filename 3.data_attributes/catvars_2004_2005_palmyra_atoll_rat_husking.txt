@@ -1,0 +1,31 @@
+attributeName	code	definition
+carapace_pieces	n	
+carapace_pieces	y	
+carapace_pieces	NA	
+forest	Bare	
+forest	CONU	
+forest	PIGR	
+forest	TECA	
+forest	TOAR	
+station_habitat	Building	
+station_habitat	Bunker	
+station_habitat	Conu Frond	
+station_habitat	Conu Trunk	
+station_habitat	Conu Trunk base	
+station_habitat	Conu Trunk hollow	
+station_habitat	Fuel Farm	
+station_habitat	Fuel Tank	
+station_habitat	Junk Pile	
+station_habitat	Lepturus	
+station_habitat	Litter Trap	
+station_habitat	near CONU trunk	
+station_habitat	near TECA trunk	
+station_habitat	PIGR Log	
+station_habitat	PIGR Trunk	
+station_habitat	PIRG Log	
+station_habitat	PIRG Stump	
+station_habitat	Rat Station Bucket	
+station_habitat	Runway	
+station_habitat	TOAR trunk	
+station_habitat	top of 55 gal drum	
+station_habitat	Tournafortia Trunk	
