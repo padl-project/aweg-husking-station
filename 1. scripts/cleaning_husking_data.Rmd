@@ -70,7 +70,8 @@ rat_station_clean <- rat_stations_raw %>%
          total = ifelse(total == "PAF", NA, total) %>%  as.numeric(.),
          carapace_pieces = case_when(carapace_pieces == "Y" ~ "y",
                                      carapace_pieces == "N" ~ "n",
-                                     T ~ carapace_pieces))
+                                     T ~ carapace_pieces),
+         date = date(date))
 
 # rat_crab_clean <- rat_crab_stat_raw %>% 
 #   rename_at(vars(matches("_mm")), ~str_remove(., "_mm")) %>% 
@@ -136,7 +137,7 @@ unique(rat_station_clean$station_habitat_redifined) ## character. Except for "T
 
 
 ```{r}
-write_csv(rat_station_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_husking.csv"))
+write_csv(rat_station_clean, here::here("7.clean_data/palmyra_atoll_rat_husking_2004_2005.csv"))
 
 # write_csv(rat_crab_clean, here::here("7.clean_data/2004_2005_palmyra_atoll_rat_crab_husking.csv"))
 
